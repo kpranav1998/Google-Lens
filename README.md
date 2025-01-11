@@ -71,5 +71,4 @@ A Siamese network is designed to learn a distance metric between pairs of images
 - Improve computational efficiency by optimizing model inference time.
 - Develop a user-friendly GUI or web application for real-time image similarity search.
 
----
-Feel free to modify or extend this project based on your specific requirements.
+
