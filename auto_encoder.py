@@ -21,8 +21,9 @@ from common_training import evaluate_model
 
 # --- DATA LOADING AND PREPROCESSING ---
 
-data_dir = "/content/PetImages"
+data_dir = "/kaggle/input/autoencoder/archive/PetImages/"
 train_paths, test_paths, train_labels, test_labels = load_data(data_dir)
+ground_truth_labels = {path: label for path, label in zip(test_paths, test_labels)}
 
 
 
@@ -72,6 +73,31 @@ for epoch in range(num_epochs):
 
 
 # --- FEATURE EXTRACTION FOR ALL TEST IMAGES (Done ONCE) ---
+
+def evaluate_similarity(query_image_path, retrieved_images, ground_truth_labels, k):
+  """
+  Calculates Precision@k and Recall@k for a single query image in Autoencoder case.
+
+  Args:
+      query_image_path: Path to the query image.
+      retrieved_images: List of tuples (image_path, similarity) for the top-k retrieved images.
+      ground_truth_labels: Ground truth label for the query image.
+      k: Number of retrieved images to consider.
+
+  Returns:
+      precision_at_k: Precision@k for the query image.
+      recall_at_k: Recall@k for the query image.
+  """
+  relevant_count = 0
+  for image_path, _ in retrieved_images[:k]:
+    if ground_truth_labels.get(image_path) is not None and ground_truth_labels.get(query_image_path) is not None and ground_truth_labels[image_path] == ground_truth_labels[query_image_path]:
+      relevant_count += 1
+
+  precision_at_k = relevant_count / k if k > 0 else 0.0
+  total_relevant = sum(1 for path, label in ground_truth_labels.items() if ground_truth_labels.get(path) is not None and label == ground_truth_labels[query_image_path])
+  recall_at_k = relevant_count / total_relevant if total_relevant > 0 else 0.0
+  return precision_at_k, recall_at_k
+
 all_test_features = []
 for test_image_path in tqdm(test_paths, desc="Extracting features for all test images"):
     features = extract_features(test_image_path, model, data_transforms['test'], device)
@@ -96,20 +122,12 @@ example_features = test_subset_features[0].reshape(1, -1)
 similar_images = find_similar_images_knn(example_features, all_test_features, test_paths, top_k=num_similar_images)
 
 if similar_images:
-    print(f"\nSimilar images to {example_image_path}:")
-    for image_path, similarity in similar_images:
-        print(f"- {image_path}: Similarity = {similarity:.4f}")
+  print(f"\nSimilar images to {example_image_path}:")
+  for image_path, similarity in similar_images:
+    print(f"- {image_path}: Similarity = {similarity:.4f}")
+  # Calculate Precision@k and Recall@k for the example
+  precision_at_k, recall_at_k = evaluate_similarity(example_image_path, similar_images, ground_truth_labels, k=num_similar_images)
+  print(f"\nPrecision@{k}: {precision_at_k:.4f}")
+  print(f"Recall@{k}: {recall_at_k:.4f}")
 else:
-    print("Could not find similar images.")
-
-# Test on a subset of the test data
-print("\nTesting on a subset of test data")
-for i, query_image_path in tqdm(enumerate(test_subset_paths), total=len(test_subset_paths), desc="Finding similar images"):
-    query_features = test_subset_features[i].reshape(1, -1)
-    similar_images = find_similar_images_knn(query_features, all_test_features, test_paths, top_k=num_similar_images)
-    if similar_images:
-        print(f"\nSimilar images to {query_image_path}:")
-        for image_path, similarity in similar_images:
-            print(f"- {image_path}: Similarity = {similarity:.4f}")
-    else:
-        print("Could not find similar images.")
+  print("Could not find similar images.")

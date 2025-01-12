@@ -10,21 +10,25 @@ def get_resnet50(num_classes=2):
 
 class Autoencoder(nn.Module):
     def __init__(self):
-        super(Autoencoder, self).__init__()
+        super(AutoencoderLarge, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1), # Increased channels
             nn.ReLU(),
-            nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1), # Increased channels
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1), # Increased channels
+            nn.ReLU(),
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),  # Added layer
             nn.ReLU()
         )
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1), # Adjusted channels
             nn.ReLU(),
-            nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1), # Adjusted channels
             nn.ReLU(),
-            nn.ConvTranspose2d(16, 3, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1), # Adjusted channels
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1), # Adjusted channels
             nn.Sigmoid()
         )
 
@@ -36,14 +40,12 @@ class Autoencoder(nn.Module):
 
 
 
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Siamese Network Model Definition
 class SiameseNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size=(224, 224)):
         super(SiameseNetwork, self).__init__()
         self.cnn = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=10, stride=1),
@@ -62,22 +64,38 @@ class SiameseNetwork(nn.Module):
             nn.ReLU(inplace=True)
         )
 
-        # Flatten layer output size is now (256 * 7 * 7) = 12544
+        # Calculate CNN output size dynamically
+        test_input = torch.randn(1, 3, input_size[0], input_size[1])
+        with torch.no_grad():
+            cnn_output = self.cnn(test_input)
+            cnn_output_size = cnn_output.view(cnn_output.size(0), -1).size(1)
+
         self.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(400, 4096),
+            nn.Linear(cnn_output_size, 4096),
             nn.Sigmoid()
         )
 
+        def forward_once(self, x):
+            x = self.cnn(x)
+            #x = self.fc(x)
+            return x
+
+    def forward(self, input1, input2):
+        output1 = self.forward_once(input1)
+        output2 = self.forward_once(input2)
+        return output1, output2
+
+
     def forward_once(self, x):
         x = self.cnn(x)
-        x = self.fc(x)
         return x
 
     def forward(self, input1, input2):
         output1 = self.forward_once(input1)
         output2 = self.forward_once(input2)
         return output1, output2
+
 
 
 # Contrastive Loss Function
