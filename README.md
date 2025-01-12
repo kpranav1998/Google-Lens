@@ -86,6 +86,20 @@ A Siamese network is designed to learn a distance metric between pairs of images
 
 ---
 
+### **Evaluation Metrics**
+
+1. **Precision@k:** Precision at *k* measures the fraction of relevant images among the top *k* retrieved images:
+   
+   **Precision@k** = (Number of relevant images in top- *k*) / *k*
+
+2. **Mean Average Precision (MAP):** MAP is the mean of the average precision scores for multiple queries. For a single query, Average Precision (AP) is the average of the precision values at different cutoff levels where relevant images are retrieved. MAP is computed as:
+   
+   **MAP** = (1 / *N*) * Σ (Precision@k for query *i*)
+   
+   Where *N* is the total number of queries.
+
+---
+
 ### **Conclusion**
 
 - **CNN-based Feature Extraction:**  
