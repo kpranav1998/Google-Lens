@@ -88,11 +88,25 @@ A Siamese network is designed to learn a distance metric between pairs of images
 
 ### **Conclusion**
 
-Based on the results, the CNN-based feature extraction method performed the best, achieving the highest precision and MAP scores. This can be attributed to the use of pre-trained models like ResNet and VGG, which capture rich semantic features that are highly discriminative for image similarity tasks.
+- **CNN-based Feature Extraction:**  
+  - Achieved the best performance in terms of precision and MAP.  
+  - It leverages pre-trained models, which are known to capture high-level semantic features, making them highly effective for similarity search.  
+  - Computationally efficient for real-time applications due to the use of pre-computed embeddings and KNN-based retrieval.
 
-The autoencoder approach performed slightly worse than the CNN-based approach. This could be due to the fact that autoencoders learn a more compressed and generalized representation, which may not be as effective for fine-grained similarity retrieval.
+- **Autoencoders:**  
+  - Slightly lower precision compared to CNN-based feature extraction.  
+  - More generalized representations might have affected fine-grained similarity detection.  
+  - Requires less memory for storing embeddings but is computationally less efficient than pre-trained CNN models.
 
-The Siamese network performed significantly worse than the other approaches. This might be because training a Siamese network requires a large number of well-constructed pairs of similar and dissimilar images, and our dataset or training procedure may not have been optimal for this approach. Additionally, the contrastive loss function may not have been sufficient to learn highly discriminative features for this task.
+- **Siamese Networks:**  
+  - Performed the worst among the three approaches.  
+  - Requires careful pair selection and a larger dataset for effective training.  
+  - Computationally intensive during both training and inference, making it less suitable for real-time applications.
+
+- **Scalability Considerations:**  
+  - CNN-based feature extraction with KNN indexing scales better for large datasets due to efficient querying mechanisms.  
+  - Autoencoders offer a balance between memory efficiency and retrieval accuracy.  
+  - Siamese networks may face challenges in scaling due to their pairwise training approach and inference complexity.
 
 ### **Future Work**
 
