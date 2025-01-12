@@ -1,63 +1,109 @@
-# **Image Similarity Search - Project README**
+## Image Similarity Search - Project README
 
-## **Objective**
-The goal of this project is to develop an alternative to Google Lens by implementing **image similarity search** using multiple approaches. The project proposes and tests distinct methods for performing similarity search, including:
+### **Objective**
+This project explores alternatives to Google Lens by implementing various approaches for image similarity search. We propose and test distinct methods for finding similar images, including:
 
-1. **CNN-based Feature Extraction**
-2. **Autoencoders**
+1. **CNN-based Feature Extraction**  
+2. **Autoencoders**  
 3. **Siamese Networks**
 
-Each approach is fine-tuned on a cat-and-dog image dataset, and their performance is compared using metrics such as precision, recall, and retrieval accuracy. Additionally, computational efficiency and scalability are considered to enable real-time usage scenarios.
+Each approach is fine-tuned on a cat-and-dog image dataset and compared using metrics like precision, recall, and retrieval accuracy. We consider factors like performance, scalability, and suitability for real-time applications.
 
-## **Dataset**
-The dataset consists of **20,000 images**, with **10,000 images** of cats and **10,000 images** of dogs. It is available on Kaggle, and you can download it using [this link](https://storage.googleapis.com/kaggle-data-sets/550917/1003830/bundle/archive.zip).
+### **Dataset**
+We utilized a public dataset from Kaggle containing 20,000 images (10,000 cats and 10,000 dogs) accessible through this link: [Download Dataset](https://storage.googleapis.com/kaggle-data-sets/550917/1003830/bundle/archive.zip).
 
-## **Approaches Tested**
+---
 
-### **1. CNN Feature Extraction (Pre-trained Models)**
-In this approach, pre-trained CNN models (e.g., ResNet, VGG) are used to extract high-level features from images. These features are then compared using cosine similarity.
+### **Approaches Tested**
 
-#### **Steps**
-- Use a pre-trained CNN model to extract feature embeddings from the images.
-- Apply K-Nearest Neighbors (KNN) with cosine similarity to retrieve similar images.
+#### **1. CNN-based Feature Extraction (Pre-trained Models)**
+This method leverages pre-trained CNN models (e.g., ResNet, VGG) to extract high-level features from images. These features are then compared using cosine similarity and a K-Nearest Neighbors (KNN) search.
 
-### **2. Autoencoders**
+**Steps:**
+1. Extract feature embeddings from images using a pre-trained CNN model.
+2. Apply K-Nearest Neighbors (KNN) with cosine similarity to retrieve similar images.
+
+**Why KNN with Cosine Similarity:**
+KNN with cosine similarity offers several advantages over using cosine similarity alone. By employing KNN, we retrieve the top *k* nearest neighbors, ensuring that multiple similar images are returned for a given query. This approach improves the robustness of the similarity search by considering the local neighborhood structure in the feature space. Additionally, KNN allows for efficient querying in large datasets by leveraging indexing techniques, making it more scalable than performing pairwise cosine similarity comparisons across the entire dataset.
+
+---
+
+#### **2. Autoencoders**
 Autoencoders are employed to learn compact representations of images. The encoder part of the network generates embeddings that are compared to measure similarity.
 
-#### **Steps**
-- Train an autoencoder on the image dataset to learn image representations.
-- Use the encoder output as feature embeddings.
-- Perform similarity search using KNN with cosine similarity.
+**Steps:**
+1. Train an autoencoder on the image dataset to learn image representations.
+2. Use the encoder output as feature embeddings.
+3. Perform similarity search using KNN with cosine similarity.
 
-### **3. Siamese Networks**
-A Siamese network is designed to learn a distance metric between pairs of images by minimizing contrastive loss. This enables direct similarity computation without additional feature extraction.
+---
 
-#### **Steps**
-- Define a Siamese network with a contrastive loss function.
-- Train the network using pairs of similar and dissimilar images.
-- Use the trained network to compute pairwise distances between images.
+#### **3. Siamese Networks**
+A Siamese network is designed to learn a distance metric between pairs of images by minimizing a contrastive loss function. This approach allows direct similarity computation without additional feature extraction.
 
-## **How to Run the Project**
-1. Download and unzip the dataset.
-2. Install the required dependencies:
+**Steps:**
+1. Define a Siamese network with a contrastive loss function.
+2. Train the network using pairs of similar and dissimilar images.
+3. Use the trained network to compute pairwise distances between images.
+
+---
+
+### **Results**
+
+#### **CNN-based Feature Extraction**
+- **Precision@5:** 0.82  
+- **MAP@5:** 0.9786
+
+#### **Autoencoder**
+- **Precision@5:** 0.8000
+
+#### **Siamese Network**
+- **Mean Precision@5:** 0.4820  
+- **MAP@5:** 0.4940
+
+---
+
+### **Conclusion**
+Based on the results, the CNN-based feature extraction method performed the best, achieving the highest precision and MAP scores. This can be attributed to the use of pre-trained models like ResNet and VGG, which capture rich semantic features that are highly discriminative for image similarity tasks.
+
+The autoencoder approach performed slightly worse than the CNN-based approach. This could be due to the fact that autoencoders learn a more compressed and generalized representation, which may not be as effective for fine-grained similarity retrieval.
+
+The Siamese network performed significantly worse than the other approaches. This might be because training a Siamese network requires a large number of well-constructed pairs of similar and dissimilar images, and our dataset or training procedure may not have been optimal for this approach. Additionally, the contrastive loss function may not have been sufficient to learn highly discriminative features for this task.
+
+### **Future Work**
+- Implement additional approaches such as triplet networks or graph-based similarity search.
+- Improve computational efficiency by optimizing model inference time.
+- Develop a user-friendly GUI or web application for real-time image similarity search.
+- Explore data augmentation techniques and better pair selection strategies to improve Siamese network performance.
+
+---
+
+### **How to Run the Project**
+
+1. **Download and unzip the dataset.**
+
+2. **Install the required dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
-3. Run the desired approach script to train the model and test similarity search:
-   - For **Autoencoder** approach:
+
+3. **Run the desired approach script to train the model and test similarity search:**
+   - **For Autoencoder approach:**
      ```bash
      python autoencoder.py
      ```
-   - For **CNN-based Feature Extraction** approach:
+   - **For CNN-based Feature Extraction approach:**
      ```bash
-     python cnn_feature_extraction.py
+     python cnn.py
      ```
-   - For **Siamese Network** approach:
+   - **For Siamese Network approach:**
      ```bash
      python siamese.py
      ```
 
-## **Dependencies**
+---
+
+### **Dependencies**
 - Python 3.7+
 - PyTorch
 - torchvision
@@ -66,9 +112,10 @@ A Siamese network is designed to learn a distance metric between pairs of images
 - PIL (Pillow)
 - tqdm
 
-## **Future Work**
+---
+
+### **Future Work**
 - Implement additional approaches such as triplet networks or graph-based similarity search.
 - Improve computational efficiency by optimizing model inference time.
 - Develop a user-friendly GUI or web application for real-time image similarity search.
-
 
